@@ -73,6 +73,16 @@ def get_mu_stat(rankings, key, default_tier="bronze"):
     return entry
 
 
+# Same idea, but for an individual member's rankings dict — a member can be
+# missing a stat key (e.g. weeklyUserDamages, userDamages, userBounty,
+# userWealth) just like an MU can be missing muReputation.
+def get_member_stat(member, key, default_tier="bronze"):
+    entry = member.get("rankings", {}).get(key)
+    if not entry:
+        return {"value": 0, "rank": "N/A", "tier": default_tier}
+    return entry
+
+
 # ============================================
 # Load + normalize data
 # (accepts both the new multi-MU shape and the legacy single-MU shape,
@@ -336,7 +346,7 @@ def build_table(title, ranking, stat_key, prev_members):
     if prev_members:
         prev_sorted = sorted(
             prev_members,
-            key=lambda m: m["rankings"].get(stat_key, {}).get("value", 0),
+            key=lambda m: m.get("rankings", {}).get(stat_key, {}).get("value", 0),
             reverse=True,
         )
         for i, m in enumerate(prev_sorted, start=1):
@@ -344,7 +354,7 @@ def build_table(title, ranking, stat_key, prev_members):
 
     rows = []
     for position, member in enumerate(ranking, start=1):
-        data = member["rankings"][stat_key]
+        data = get_member_stat(member, stat_key)
         value = data["value"]
         tier = data["tier"]
         current_rank = data["rank"]
@@ -388,10 +398,10 @@ def build_table(title, ranking, stat_key, prev_members):
             <td class="rank-col">#{position} {pos_badge}</td>
             <td>
                 <div class="member">
-                    <img class="avatar" src="{member['avatarUrl']}" alt="{member['username']}">
+                    <img class="avatar" src="{member.get('avatarUrl','')}" alt="{member.get('username','Unknown')}">
                     <div class="member-info">
-                        <div class="member-name">{member['username']}{former_name_html}</div>
-                        <div class="member-level">Level {member['level']}</div>
+                        <div class="member-name">{member.get('username','Unknown')}{former_name_html}</div>
+                        <div class="member-level">Level {member.get('level','?')}</div>
                     </div>
                 </div>
             </td>
@@ -440,10 +450,10 @@ def build_roster_changes(current_members, prev_members):
     def member_row(m, badge_color, badge_label):
         return f"""
         <div class="roster-row">
-            <img class="avatar" src="{m['avatarUrl']}" alt="{m['username']}">
+            <img class="avatar" src="{m.get('avatarUrl','')}" alt="{m.get('username','Unknown')}">
             <div class="member-info">
-                <div class="member-name">{m['username']}</div>
-                <div class="member-level">Level {m['level']}</div>
+                <div class="member-name">{m.get('username','Unknown')}</div>
+                <div class="member-level">Level {m.get('level','?')}</div>
             </div>
             <span class="roster-badge" style="background:{badge_color};">{badge_label}</span>
         </div>
@@ -483,10 +493,10 @@ def build_roster_changes(current_members, prev_members):
 
 def generate_mu_page(mu):
     prev_mu = find_prev_mu(mu)
-    prev_members = prev_mu["members"] if prev_mu else []
+    prev_members = prev_mu.get("members", []) if prev_mu else []
 
-    members = mu["members"]
-    rankings = mu["rankings"]
+    members = mu.get("members", [])
+    rankings = mu.get("rankings", {})
 
     # --- FIX: use safe lookups instead of rankings["muReputation"] etc. ---
     # Some MUs (especially newly-added ones) may not have every MU-level
@@ -527,10 +537,10 @@ def generate_mu_page(mu):
                         diff=mu_reputation_diff, previous_rank=mu_reputation_prev_rank),
     ])
 
-    weekly_damage_ranking = sorted(members, key=lambda m: m["rankings"]["weeklyUserDamages"]["value"], reverse=True)
-    total_damage_ranking = sorted(members, key=lambda m: m["rankings"]["userDamages"]["value"], reverse=True)
-    bounty_ranking = sorted(members, key=lambda m: m["rankings"]["userBounty"]["value"], reverse=True)
-    wealth_ranking = sorted(members, key=lambda m: m["rankings"]["userWealth"]["value"], reverse=True)
+    weekly_damage_ranking = sorted(members, key=lambda m: get_member_stat(m, "weeklyUserDamages")["value"], reverse=True)
+    total_damage_ranking = sorted(members, key=lambda m: get_member_stat(m, "userDamages")["value"], reverse=True)
+    bounty_ranking = sorted(members, key=lambda m: get_member_stat(m, "userBounty")["value"], reverse=True)
+    wealth_ranking = sorted(members, key=lambda m: get_member_stat(m, "userWealth")["value"], reverse=True)
 
     roster_changes_html = build_roster_changes(members, prev_members)
 
@@ -545,7 +555,7 @@ def generate_mu_page(mu):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{mu['name']} Dashboard</title>
+        <title>{mu.get('name','Unknown MU')} Dashboard</title>
         <style>{SHARED_STYLE}</style>
     </head>
     <body>
@@ -553,9 +563,9 @@ def generate_mu_page(mu):
             <!-- Header -->
             <div class="mu-header">
                 <div class="mu-header-left">
-                    <img src="{mu['avatarUrl']}">
+                    <img src="{mu.get('avatarUrl','')}">
                     <div>
-                        <div class="mu-name">{mu['name']}</div>
+                        <div class="mu-name">{mu.get('name','Unknown MU')}</div>
                         <div class="mu-subtitle">Guild Dashboard</div>
                     </div>
                 </div>
@@ -657,16 +667,16 @@ def build_week_history_html():
 def generate_overview(mu_entries):
     # --- FIX: same defensive access here, so one MU missing muWeeklyDamages
     # or muDamages doesn't crash the overview page either. ---
-    total_weekly = sum(get_mu_stat(m["rankings"], "muWeeklyDamages")["value"] for m in mu_entries)
-    total_all_time = sum(get_mu_stat(m["rankings"], "muDamages")["value"] for m in mu_entries)
+    total_weekly = sum(get_mu_stat(m.get("rankings", {}), "muWeeklyDamages")["value"] for m in mu_entries)
+    total_all_time = sum(get_mu_stat(m.get("rankings", {}), "muDamages")["value"] for m in mu_entries)
 
     # Rank MUs by weekly damage share for display order
-    ordered = sorted(mu_entries, key=lambda m: get_mu_stat(m["rankings"], "muWeeklyDamages")["value"], reverse=True)
+    ordered = sorted(mu_entries, key=lambda m: get_mu_stat(m.get("rankings", {}), "muWeeklyDamages")["value"], reverse=True)
 
     cards = []
     for mu in ordered:
-        weekly_value = get_mu_stat(mu["rankings"], "muWeeklyDamages")["value"]
-        total_value = get_mu_stat(mu["rankings"], "muDamages")["value"]
+        weekly_value = get_mu_stat(mu.get("rankings", {}), "muWeeklyDamages")["value"]
+        total_value = get_mu_stat(mu.get("rankings", {}), "muDamages")["value"]
         weekly_pct = (weekly_value / total_weekly * 100) if total_weekly else 0
         total_pct = (total_value / total_all_time * 100) if total_all_time else 0
         page_link = docs_page_name(current_week, mu)
@@ -674,8 +684,8 @@ def generate_overview(mu_entries):
         cards.append(f"""
         <div class="mu-overview-card">
             <div class="mu-overview-top">
-                <img src="{mu['avatarUrl']}">
-                <div class="mu-overview-name"><a href="{page_link}">{mu['name']}</a></div>
+                <img src="{mu.get('avatarUrl','')}">
+                <div class="mu-overview-name"><a href="{page_link}">{mu.get('name','Unknown MU')}</a></div>
             </div>
             <div class="mu-overview-bars">
                 <div class="share-block">
