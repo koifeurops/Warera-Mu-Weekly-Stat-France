@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warera Spectre Log — Overview</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24px; }
+.container { max-width:1900px; margin:auto; }
+
+.mu-header {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding:24px; margin-bottom:24px;
+    background:#131d31; border:1px solid #25324d; border-radius:18px;
+}
+.mu-header-left { display:flex; align-items:center; gap:20px; }
+.mu-header img { width:96px; height:96px; border-radius:50%; }
+.mu-name { font-size:2rem; font-weight:bold; }
+.mu-subtitle { color:#94a3b8; margin-top:6px; }
+.generated-at { color:#94a3b8; font-size:0.9rem; text-align:right; }
+
+.stats {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:18px; margin-bottom:24px;
+}
+.stat-card {
+    background:#131d31; border:1px solid #25324d;
+    border-radius:16px; padding:20px;
+}
+.stat-title { color:#94a3b8; font-size:.9rem; }
+.stat-value { font-size:1.8rem; font-weight:bold; margin-top:10px; }
+.stat-rank { margin-top:8px; color:#cbd5e1; }
+.stat-diff { font-size:0.9rem; margin-top:6px; }
+.stat-rank-evolution { font-size:0.8rem; color:#94a3b8; margin-top:4px; }
+
+.master   { border-left:6px solid #ff4d4d; }
+.diamond  { border-left:6px solid #3fa9ff; }
+.platinum { border-left:6px solid #b8c2cc; }
+.gold     { border-left:6px solid #f5c542; }
+.silver   { border-left:6px solid #bcbcbc; }
+.bronze   { border-left:6px solid #c57a44; }
+
+.section-label {
+    color:#94a3b8; font-size:0.8rem; text-transform:uppercase;
+    letter-spacing:0.08em; margin-bottom:10px; margin-top:24px; padding-left:4px;
+}
+.rankings, .rankings-two-col {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:20px;
+}
+.ranking-card {
+    background:#131d31; border:1px solid #25324d;
+    border-radius:18px; overflow:hidden;
+}
+.ranking-title {
+    background:#1a2740; padding:18px;
+    font-weight:bold; font-size:1.1rem;
+}
+.roster-count { font-weight:400; color:#94a3b8; font-size:0.9rem; }
+
+table { width:100%; border-collapse:collapse; }
+thead th { position:sticky; top:0; background:#1f2f4d; }
+th { text-align:left; padding:12px; }
+td { padding:12px; border-bottom:1px solid #202f49; }
+tbody tr:hover { background:rgba(255,255,255,.03); }
+
+.member { display:flex; align-items:center; gap:12px; }
+.avatar {
+    width:42px; height:42px; border-radius:50%;
+    object-fit:cover; border:2px solid #334155;
+}
+.member-info { display:flex; flex-direction:column; }
+.member-name { font-weight:600; }
+.member-name .former-name { color:#94a3b8; font-size:0.78rem; font-weight:400; margin-left:6px; }
+.member-level { color:#94a3b8; font-size:.85rem; }
+.tier {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 10px; border-radius:999px;
+    color:white; font-size:.85rem; font-weight:bold;
+}
+.rank-col { width:110px; white-space:nowrap; }
+.pos-up   { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-down { font-size:0.72rem; font-weight:700; color:#f87171; background:rgba(248,113,113,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-same { font-size:0.72rem; color:#64748b; margin-left:4px; }
+.pos-new  { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.value-col { font-weight:bold; }
+.rank-evolution-col { font-weight:bold; color:#94a3b8; font-size:0.9rem; }
+.diff-col { font-weight:bold; }
+
+/* Roster changes */
+.roster-list { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+.roster-row {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 12px; border-radius:10px;
+    background:#0f1929; border:1px solid #1e2f48;
+}
+.roster-badge {
+    margin-left:auto; padding:4px 12px;
+    border-radius:999px; font-size:0.8rem; font-weight:bold; color:white;
+}
+.roster-empty {
+    padding:20px 16px; color:#94a3b8; font-size:0.9rem; text-align:center;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:16px; margin-top:32px; padding-top:24px; border-top:1px solid #25324d;
+}
+.nav-btn {
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 28px; background:#131d31; border:1px solid #25324d;
+    border-radius:12px; color:white; font-size:1rem; font-weight:600;
+    text-decoration:none; cursor:pointer;
+    transition:background 0.18s, border-color 0.18s, transform 0.12s;
+}
+.nav-btn:hover { background:#1a2740; border-color:#3fa9ff; transform:translateY(-2px); }
+.nav-btn:active { transform:translateY(0); }
+.nav-btn-prev::before { content:"←"; font-size:1.1rem; }
+.nav-btn-next::after  { content:"→"; font-size:1.1rem; }
+.nav-btn-disabled { opacity:0.35; pointer-events:none; }
+
+/* Overview page: MU comparison + damage-share bars */
+.mu-overview-card {
+    background:#131d31; border:1px solid #25324d; border-radius:18px;
+    padding:20px; margin-bottom:18px;
+}
+.mu-overview-top { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.mu-overview-top img { width:56px; height:56px; border-radius:50%; }
+.mu-overview-name { font-size:1.3rem; font-weight:bold; }
+.mu-overview-name a { color:inherit; text-decoration:none; }
+.mu-overview-name a:hover { text-decoration:underline; }
+.mu-overview-bars { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.share-block { }
+.share-label { display:flex; justify-content:space-between; color:#94a3b8; font-size:0.85rem; margin-bottom:6px; }
+.share-bar-track { background:#0f1929; border-radius:999px; height:14px; overflow:hidden; border:1px solid #1e2f48; }
+.share-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#3fa9ff,#60a5fa); }
+.share-bar-fill.total { background:linear-gradient(90deg,#f5c542,#ff9d4d); }
+.share-value { margin-top:6px; font-size:0.9rem; color:#cbd5e1; }
+
+.week-history { display:flex; flex-direction:column; gap:10px; }
+.week-history-row {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:12px 16px; border-radius:10px;
+    background:#0f1929; border:1px solid #1e2f48;
+}
+.week-history-title { font-weight:600; min-width:90px; }
+.week-history-links { display:flex; gap:8px; flex-wrap:wrap; }
+.week-history-links a {
+    color:#cbd5e1; text-decoration:none; background:#1a2740;
+    border:1px solid #25324d; border-radius:8px; padding:4px 10px; font-size:0.85rem;
+}
+.week-history-links a:hover { border-color:#3fa9ff; color:white; }
+
+@media(max-width:1400px) { .rankings, .rankings-two-col, .mu-overview-bars { grid-template-columns:1fr; } }
+@media(max-width:900px)  { .stats { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px)  {
+    .stats { grid-template-columns:1fr; }
+    .mu-header { flex-direction:column; text-align:center; }
+    .nav-buttons { flex-direction:column; }
+    .nav-btn { width:100%; justify-content:center; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+    <div class="mu-header">
+        <div class="mu-header-left">
+            <div>
+                <div class="mu-name">MU Overview</div>
+                <div class="mu-subtitle">Damage share across all tracked MUs — Week 28</div>
+            </div>
+        </div>
+        <div class="generated-at">Generated: Sunday, 12 July 20:48</div>
+    </div>
+
+    <div class="section-label">Tracked MUs (2)</div>
+    
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-69d206fc97650a3fb98a8520-1775372044366-n23wet1t.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-SPECTRE.html">SPECTRE</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>92.0%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:92.00%"></div></div>
+                    <div class="share-value">197,644,400 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>84.3%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:84.33%"></div></div>
+                    <div class="share-value">1,827,781,376 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-689e4943e7c74552d8974185-1765120504633-8olktqcq.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Combat.html">Bataillon Combat</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>8.0%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:8.00%"></div></div>
+                    <div class="share-value">17,178,688 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>15.7%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:15.67%"></div></div>
+                    <div class="share-value">339,515,974 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+
+    
+
+</div>
+</body>
+</html>
