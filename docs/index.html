@@ -1,15 +1,14 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warera Spectre Log — Overview</title>
-<style>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Warera Spectre Log — Overview</title>
+        <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24px; }
 .container { max-width:1900px; margin:auto; }
-
 .mu-header {
     display:flex; align-items:center; justify-content:space-between;
     gap:20px; padding:24px; margin-bottom:24px;
@@ -20,7 +19,6 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
 .mu-name { font-size:2rem; font-weight:bold; }
 .mu-subtitle { color:#94a3b8; margin-top:6px; }
 .generated-at { color:#94a3b8; font-size:0.9rem; text-align:right; }
-
 .stats {
     display:grid; grid-template-columns:repeat(4,1fr);
     gap:18px; margin-bottom:24px;
@@ -34,14 +32,12 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
 .stat-rank { margin-top:8px; color:#cbd5e1; }
 .stat-diff { font-size:0.9rem; margin-top:6px; }
 .stat-rank-evolution { font-size:0.8rem; color:#94a3b8; margin-top:4px; }
-
-.master   { border-left:6px solid #ff4d4d; }
-.diamond  { border-left:6px solid #3fa9ff; }
+.master { border-left:6px solid #ff4d4d; }
+.diamond { border-left:6px solid #3fa9ff; }
 .platinum { border-left:6px solid #b8c2cc; }
-.gold     { border-left:6px solid #f5c542; }
-.silver   { border-left:6px solid #bcbcbc; }
-.bronze   { border-left:6px solid #c57a44; }
-
+.gold { border-left:6px solid #f5c542; }
+.silver { border-left:6px solid #bcbcbc; }
+.bronze { border-left:6px solid #c57a44; }
 .section-label {
     color:#94a3b8; font-size:0.8rem; text-transform:uppercase;
     letter-spacing:0.08em; margin-bottom:10px; margin-top:24px; padding-left:4px;
@@ -58,13 +54,11 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
     font-weight:bold; font-size:1.1rem;
 }
 .roster-count { font-weight:400; color:#94a3b8; font-size:0.9rem; }
-
 table { width:100%; border-collapse:collapse; }
 thead th { position:sticky; top:0; background:#1f2f4d; }
 th { text-align:left; padding:12px; }
 td { padding:12px; border-bottom:1px solid #202f49; }
 tbody tr:hover { background:rgba(255,255,255,.03); }
-
 .member { display:flex; align-items:center; gap:12px; }
 .avatar {
     width:42px; height:42px; border-radius:50%;
@@ -80,14 +74,13 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
     color:white; font-size:.85rem; font-weight:bold;
 }
 .rank-col { width:110px; white-space:nowrap; }
-.pos-up   { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-up { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .pos-down { font-size:0.72rem; font-weight:700; color:#f87171; background:rgba(248,113,113,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .pos-same { font-size:0.72rem; color:#64748b; margin-left:4px; }
-.pos-new  { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-new { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .value-col { font-weight:bold; }
 .rank-evolution-col { font-weight:bold; color:#94a3b8; font-size:0.9rem; }
 .diff-col { font-weight:bold; }
-
 /* Roster changes */
 .roster-list { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
 .roster-row {
@@ -102,7 +95,6 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .roster-empty {
     padding:20px 16px; color:#94a3b8; font-size:0.9rem; text-align:center;
 }
-
 /* Navigation buttons */
 .nav-buttons {
     display:flex; justify-content:space-between; align-items:center;
@@ -118,9 +110,8 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .nav-btn:hover { background:#1a2740; border-color:#3fa9ff; transform:translateY(-2px); }
 .nav-btn:active { transform:translateY(0); }
 .nav-btn-prev::before { content:"←"; font-size:1.1rem; }
-.nav-btn-next::after  { content:"→"; font-size:1.1rem; }
+.nav-btn-next::after { content:"→"; font-size:1.1rem; }
 .nav-btn-disabled { opacity:0.35; pointer-events:none; }
-
 /* Overview page: MU comparison + damage-share bars */
 .mu-overview-card {
     background:#131d31; border:1px solid #25324d; border-radius:18px;
@@ -138,7 +129,6 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .share-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#3fa9ff,#60a5fa); }
 .share-bar-fill.total { background:linear-gradient(90deg,#f5c542,#ff9d4d); }
 .share-value { margin-top:6px; font-size:0.9rem; color:#cbd5e1; }
-
 .week-history { display:flex; flex-direction:column; gap:10px; }
 .week-history-row {
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
@@ -152,32 +142,30 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
     border:1px solid #25324d; border-radius:8px; padding:4px 10px; font-size:0.85rem;
 }
 .week-history-links a:hover { border-color:#3fa9ff; color:white; }
-
 @media(max-width:1400px) { .rankings, .rankings-two-col, .mu-overview-bars { grid-template-columns:1fr; } }
-@media(max-width:900px)  { .stats { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:600px)  {
+@media(max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px) {
     .stats { grid-template-columns:1fr; }
     .mu-header { flex-direction:column; text-align:center; }
     .nav-buttons { flex-direction:column; }
     .nav-btn { width:100%; justify-content:center; }
 }
 </style>
-</head>
-<body>
-<div class="container">
-
-    <div class="mu-header">
-        <div class="mu-header-left">
-            <div>
-                <div class="mu-name">MU Overview</div>
-                <div class="mu-subtitle">Damage share across all tracked MUs — Week 28</div>
+    </head>
+    <body>
+        <div class="container">
+            <div class="mu-header">
+                <div class="mu-header-left">
+                    <div>
+                        <div class="mu-name">MU Overview</div>
+                        <div class="mu-subtitle">Damage share across all tracked MUs — Week 28</div>
+                    </div>
+                </div>
+                <div class="generated-at">Generated: Sunday, 12 July 21:22</div>
             </div>
-        </div>
-        <div class="generated-at">Generated: Sunday, 12 July 20:48</div>
-    </div>
 
-    <div class="section-label">Tracked MUs (2)</div>
-    
+            <div class="section-label">Tracked MUs (12)</div>
+            
         <div class="mu-overview-card">
             <div class="mu-overview-top">
                 <img src="https://media.warera.io/avatars/mu/mu-69d206fc97650a3fb98a8520-1775372044366-n23wet1t.png">
@@ -185,14 +173,33 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
             </div>
             <div class="mu-overview-bars">
                 <div class="share-block">
-                    <div class="share-label"><span>Weekly Damage Share</span><span>92.0%</span></div>
-                    <div class="share-bar-track"><div class="share-bar-fill" style="width:92.00%"></div></div>
-                    <div class="share-value">197,644,400 damage this week</div>
+                    <div class="share-label"><span>Weekly Damage Share</span><span>68.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:68.37%"></div></div>
+                    <div class="share-value">198,370,382 damage this week</div>
                 </div>
                 <div class="share-block">
-                    <div class="share-label"><span>Total Damage Share</span><span>84.3%</span></div>
-                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:84.33%"></div></div>
-                    <div class="share-value">1,827,781,376 damage all-time</div>
+                    <div class="share-label"><span>Total Damage Share</span><span>51.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:51.35%"></div></div>
+                    <div class="share-value">1,828,489,428 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-687411239e051f04623ff26f-1765123438970-f4bm3wrw.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Elite.html">Bataillon Elite</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>13.6%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:13.61%"></div></div>
+                    <div class="share-value">39,500,190 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>27.2%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:27.18%"></div></div>
+                    <div class="share-value">967,911,980 damage all-time</div>
                 </div>
             </div>
         </div>
@@ -204,21 +211,200 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
             </div>
             <div class="mu-overview-bars">
                 <div class="share-block">
-                    <div class="share-label"><span>Weekly Damage Share</span><span>8.0%</span></div>
-                    <div class="share-bar-track"><div class="share-bar-fill" style="width:8.00%"></div></div>
-                    <div class="share-value">17,178,688 damage this week</div>
+                    <div class="share-label"><span>Weekly Damage Share</span><span>6.0%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:6.01%"></div></div>
+                    <div class="share-value">17,431,251 damage this week</div>
                 </div>
                 <div class="share-block">
-                    <div class="share-label"><span>Total Damage Share</span><span>15.7%</span></div>
-                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:15.67%"></div></div>
-                    <div class="share-value">339,515,974 damage all-time</div>
+                    <div class="share-label"><span>Total Damage Share</span><span>9.5%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:9.54%"></div></div>
+                    <div class="share-value">339,768,537 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-6931cb4b4befb7367310eae0-1765120383456-yjvvinc0.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Ascendant.html">Bataillon Ascendant</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>5.9%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:5.88%"></div></div>
+                    <div class="share-value">17,047,318 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>3.1%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:3.10%"></div></div>
+                    <div class="share-value">110,336,542 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-6903a8426dc0fc41ad7eeb19-1765120362147-5ayfjuhb.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Soutien.html">Bataillon Soutien</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>2.8%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:2.80%"></div></div>
+                    <div class="share-value">8,111,641 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>5.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:5.36%"></div></div>
+                    <div class="share-value">190,710,732 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-69c558b6bf8913d0cae123c6-1783073735744-eb3rcw43.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Centurion.html">Bataillon Centurion</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>1.0%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.98%"></div></div>
+                    <div class="share-value">2,847,412 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.9%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.85%"></div></div>
+                    <div class="share-value">30,269,564 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-6931e4d9abd27e078203761c-1764877616425-9eju16vp.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Reserviste.html">Bataillon Reserviste</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.5%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.46%"></div></div>
+                    <div class="share-value">1,332,515 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.8%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.84%"></div></div>
+                    <div class="share-value">29,918,341 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-6a25dcfe919f3c8d7c5d9969-1783758840536-a94vcfmy.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Neuf.html">Bataillon Neuf</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.44%"></div></div>
+                    <div class="share-value">1,283,494 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.2%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.21%"></div></div>
+                    <div class="share-value">7,467,371 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="None">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Recrue.html">Bataillon Recrue</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.44%"></div></div>
+                    <div class="share-value">1,282,134 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.2%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.16%"></div></div>
+                    <div class="share-value">5,757,464 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-69a0d1f9a1f622f46ea9bc96-1781899823765-p56vgct0.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Nouveau.html">Bataillon Nouveau</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.4%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.41%"></div></div>
+                    <div class="share-value">1,192,960 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.5%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.49%"></div></div>
+                    <div class="share-value">17,593,749 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-69e5f36ed80cf7528adfea80-1780940917123-oukig0wv.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Aspirant.html">Bataillon Aspirant</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.3%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.31%"></div></div>
+                    <div class="share-value">890,083 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.2%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.16%"></div></div>
+                    <div class="share-value">5,849,706 damage all-time</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mu-overview-card">
+            <div class="mu-overview-top">
+                <img src="https://media.warera.io/avatars/mu/mu-695b045cafc9aaee07757fd3-1767655250204-xtd9yaia.png">
+                <div class="mu-overview-name"><a href="Week-28-mu-Bataillon_Jeune.html">Bataillon Jeune</a></div>
+            </div>
+            <div class="mu-overview-bars">
+                <div class="share-block">
+                    <div class="share-label"><span>Weekly Damage Share</span><span>0.3%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill" style="width:0.29%"></div></div>
+                    <div class="share-value">847,714 damage this week</div>
+                </div>
+                <div class="share-block">
+                    <div class="share-label"><span>Total Damage Share</span><span>0.7%</span></div>
+                    <div class="share-bar-track"><div class="share-bar-fill total" style="width:0.75%"></div></div>
+                    <div class="share-value">26,587,293 damage all-time</div>
                 </div>
             </div>
         </div>
         
 
+            
+    <div class="section-label">Weekly Updates</div>
+    <div class="week-history">
+        <div class="week-history-row">
+            <div class="week-history-title">Week 28</div>
+            <div class="week-history-links"><a href="Week-28-mu-Bataillon_Combat.html">Bataillon Combat</a><a href="Week-28-mu-SPECTRE.html">SPECTRE</a></div>
+        </div>
+        </div>
     
-
-</div>
-</body>
-</html>
+        </div>
+    </body>
+    </html>
+    
