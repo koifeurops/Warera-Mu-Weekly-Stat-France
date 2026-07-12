@@ -1,0 +1,70 @@
+name: Weekly data fetch and publish
+
+on:
+  schedule:
+    # Sunday 21:30 UTC = ~23:30 French time (CEST summer / 22:30 CET winter)
+    - cron: '30 21 * * 0'
+  workflow_dispatch: {}   
+permissions:
+  contents: write
+
+jobs:
+  fetch-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Write API key from secret
+        run: |
+          mkdir -p data
+          echo -n "${{ secrets.MU_API_KEY }}" > data/api_key.txt
+
+      - name: Run fetch script
+        run: node mufetch.js
+
+      - name: Clean data
+        run: python3 mu_data_cleaner.py
+
+      - name: Generate HTML
+        run: python3 html_generator.py
+
+      - name: Archive into week folder
+        run: |
+          week_number=$(date +%V)
+          folder_name="week_${week_number}_log"
+          mkdir -p "$folder_name"
+          mv *.json "$folder_name"/
+          mv overview.html "$folder_name"/
+          mv mu-*.html "$folder_name"/
+
+          mkdir -p docs
+
+          # Publish every per-MU dashboard for this week
+          for f in "$folder_name"/mu-*.html; do
+            base=$(basename "$f")
+            cp "$f" "docs/Week-${week_number}-${base}"
+          done
+
+          # The overview page replaces the hand-maintained docs/index.html
+          cp "$folder_name"/overview.html "docs/index.html"
+
+      - name: Commit new data + published pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add week_*_log docs
+          git commit -m "Weekly update: $(date +%V)" || echo "Nothing to commit"
+          git push
