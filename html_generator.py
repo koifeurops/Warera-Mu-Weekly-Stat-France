@@ -60,11 +60,24 @@ def docs_page_name(week, mu):
 
 
 # ============================================
+# Safe stat lookup
+# (some MUs — especially newly-added ones — may not have every stat key
+# present in their "rankings" dict yet, e.g. muReputation. Rather than
+# crashing the whole run with a KeyError, fall back to a neutral default
+# so the page still generates.)
+# ============================================
+def get_mu_stat(rankings, key, default_tier="bronze"):
+    entry = rankings.get(key)
+    if not entry:
+        return {"value": 0, "rank": "N/A", "tier": default_tier}
+    return entry
+
+
+# ============================================
 # Load + normalize data
 # (accepts both the new multi-MU shape and the legacy single-MU shape,
-#  so older week_*_log/cleaneddata.json files still work as "previous week")
+# so older week_*_log/cleaneddata.json files still work as "previous week")
 # ============================================
-
 def normalize_cleaned(data):
     if data is None:
         return []
@@ -95,7 +108,6 @@ if Path(previous_week_json).exists():
 # Matching helpers — MATCH BY ID, NOT NAME/USERNAME
 # (falls back to name/username only for legacy data that predates ids)
 # ============================================
-
 def find_prev_mu(mu):
     for prev in previous_mus:
         if mu.get("id") is not None and prev.get("id") is not None:
@@ -142,12 +154,10 @@ def calculate_diff(current_value, previous_value):
 # ============================================
 # Shared CSS (used by both per-MU pages and the overview page)
 # ============================================
-
 SHARED_STYLE = """
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24px; }
 .container { max-width:1900px; margin:auto; }
-
 .mu-header {
     display:flex; align-items:center; justify-content:space-between;
     gap:20px; padding:24px; margin-bottom:24px;
@@ -158,7 +168,6 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
 .mu-name { font-size:2rem; font-weight:bold; }
 .mu-subtitle { color:#94a3b8; margin-top:6px; }
 .generated-at { color:#94a3b8; font-size:0.9rem; text-align:right; }
-
 .stats {
     display:grid; grid-template-columns:repeat(4,1fr);
     gap:18px; margin-bottom:24px;
@@ -172,14 +181,12 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
 .stat-rank { margin-top:8px; color:#cbd5e1; }
 .stat-diff { font-size:0.9rem; margin-top:6px; }
 .stat-rank-evolution { font-size:0.8rem; color:#94a3b8; margin-top:4px; }
-
-.master   { border-left:6px solid #ff4d4d; }
-.diamond  { border-left:6px solid #3fa9ff; }
+.master { border-left:6px solid #ff4d4d; }
+.diamond { border-left:6px solid #3fa9ff; }
 .platinum { border-left:6px solid #b8c2cc; }
-.gold     { border-left:6px solid #f5c542; }
-.silver   { border-left:6px solid #bcbcbc; }
-.bronze   { border-left:6px solid #c57a44; }
-
+.gold { border-left:6px solid #f5c542; }
+.silver { border-left:6px solid #bcbcbc; }
+.bronze { border-left:6px solid #c57a44; }
 .section-label {
     color:#94a3b8; font-size:0.8rem; text-transform:uppercase;
     letter-spacing:0.08em; margin-bottom:10px; margin-top:24px; padding-left:4px;
@@ -196,13 +203,11 @@ body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24
     font-weight:bold; font-size:1.1rem;
 }
 .roster-count { font-weight:400; color:#94a3b8; font-size:0.9rem; }
-
 table { width:100%; border-collapse:collapse; }
 thead th { position:sticky; top:0; background:#1f2f4d; }
 th { text-align:left; padding:12px; }
 td { padding:12px; border-bottom:1px solid #202f49; }
 tbody tr:hover { background:rgba(255,255,255,.03); }
-
 .member { display:flex; align-items:center; gap:12px; }
 .avatar {
     width:42px; height:42px; border-radius:50%;
@@ -218,14 +223,13 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
     color:white; font-size:.85rem; font-weight:bold;
 }
 .rank-col { width:110px; white-space:nowrap; }
-.pos-up   { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-up { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .pos-down { font-size:0.72rem; font-weight:700; color:#f87171; background:rgba(248,113,113,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .pos-same { font-size:0.72rem; color:#64748b; margin-left:4px; }
-.pos-new  { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-new { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
 .value-col { font-weight:bold; }
 .rank-evolution-col { font-weight:bold; color:#94a3b8; font-size:0.9rem; }
 .diff-col { font-weight:bold; }
-
 /* Roster changes */
 .roster-list { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
 .roster-row {
@@ -240,7 +244,6 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .roster-empty {
     padding:20px 16px; color:#94a3b8; font-size:0.9rem; text-align:center;
 }
-
 /* Navigation buttons */
 .nav-buttons {
     display:flex; justify-content:space-between; align-items:center;
@@ -256,9 +259,8 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .nav-btn:hover { background:#1a2740; border-color:#3fa9ff; transform:translateY(-2px); }
 .nav-btn:active { transform:translateY(0); }
 .nav-btn-prev::before { content:"←"; font-size:1.1rem; }
-.nav-btn-next::after  { content:"→"; font-size:1.1rem; }
+.nav-btn-next::after { content:"→"; font-size:1.1rem; }
 .nav-btn-disabled { opacity:0.35; pointer-events:none; }
-
 /* Overview page: MU comparison + damage-share bars */
 .mu-overview-card {
     background:#131d31; border:1px solid #25324d; border-radius:18px;
@@ -276,7 +278,6 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 .share-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#3fa9ff,#60a5fa); }
 .share-bar-fill.total { background:linear-gradient(90deg,#f5c542,#ff9d4d); }
 .share-value { margin-top:6px; font-size:0.9rem; color:#cbd5e1; }
-
 .week-history { display:flex; flex-direction:column; gap:10px; }
 .week-history-row {
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
@@ -290,10 +291,9 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
     border:1px solid #25324d; border-radius:8px; padding:4px 10px; font-size:0.85rem;
 }
 .week-history-links a:hover { border-color:#3fa9ff; color:white; }
-
 @media(max-width:1400px) { .rankings, .rankings-two-col, .mu-overview-bars { grid-template-columns:1fr; } }
-@media(max-width:900px)  { .stats { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:600px)  {
+@media(max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px) {
     .stats { grid-template-columns:1fr; }
     .mu-header { flex-direction:column; text-align:center; }
     .nav-buttons { flex-direction:column; }
@@ -305,7 +305,6 @@ tbody tr:hover { background:rgba(255,255,255,.03); }
 # ============================================
 # Per-MU page builders
 # ============================================
-
 def build_stat_card(title, value, rank, tier, diff=None, previous_rank=None):
     diff_html = ""
     if diff is not None:
@@ -357,7 +356,6 @@ def build_table(title, ranking, stat_key, prev_members):
         if prev_member:
             previous_value = prev_member.get("rankings", {}).get(stat_key, {}).get("value")
         diff = calculate_diff(value, previous_value)
-
         previous_rank = get_previous_rank(prev_member, stat_key)
         rank_evolution = get_rank_evolution(current_rank, previous_rank)
 
@@ -386,22 +384,22 @@ def build_table(title, ranking, stat_key, prev_members):
             former_name_html = f'<span class="former-name">(formerly {prev_member["username"]})</span>'
 
         rows.append(f"""
-            <tr>
-                <td class="rank-col">#{position} {pos_badge}</td>
-                <td>
-                    <div class="member">
-                        <img class="avatar" src="{member['avatarUrl']}" alt="{member['username']}">
-                        <div class="member-info">
-                            <div class="member-name">{member['username']}{former_name_html}</div>
-                            <div class="member-level">Level {member['level']}</div>
-                        </div>
+        <tr>
+            <td class="rank-col">#{position} {pos_badge}</td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="{member['avatarUrl']}" alt="{member['username']}">
+                    <div class="member-info">
+                        <div class="member-name">{member['username']}{former_name_html}</div>
+                        <div class="member-level">Level {member['level']}</div>
                     </div>
-                </td>
-                <td class="value-col">{fmt_number(value)}</td>
-                <td class="rank-evolution-col">{rank_evolution}</td>
-                {diff_html}
-                <td><span class="tier" style="background:{color};">{icon} {tier.title()}</span></td>
-            </tr>
+                </div>
+            </td>
+            <td class="value-col">{fmt_number(value)}</td>
+            <td class="rank-evolution-col">{rank_evolution}</td>
+            {diff_html}
+            <td><span class="tier" style="background:{color};">{icon} {tier.title()}</span></td>
+        </tr>
         """)
 
     return f"""
@@ -490,10 +488,15 @@ def generate_mu_page(mu):
     members = mu["members"]
     rankings = mu["rankings"]
 
-    mu_weekly_damage = rankings["muWeeklyDamages"]
-    mu_total_damage = rankings["muDamages"]
-    mu_bounty = rankings["muBounty"]
-    mu_reputation = rankings["muReputation"]
+    # --- FIX: use safe lookups instead of rankings["muReputation"] etc. ---
+    # Some MUs (especially newly-added ones) may not have every MU-level
+    # stat populated yet. A plain dict[key] access crashes the whole run
+    # with a KeyError the moment one MU is missing a stat. get_mu_stat()
+    # falls back to a neutral placeholder ("N/A" rank, 0 value) instead.
+    mu_weekly_damage = get_mu_stat(rankings, "muWeeklyDamages")
+    mu_total_damage = get_mu_stat(rankings, "muDamages")
+    mu_bounty = get_mu_stat(rankings, "muBounty")
+    mu_reputation = get_mu_stat(rankings, "muReputation")
 
     mu_weekly_damage_diff = mu_total_damage_diff = mu_bounty_diff = mu_reputation_diff = None
     mu_weekly_damage_prev_rank = mu_total_damage_prev_rank = mu_bounty_prev_rank = mu_reputation_prev_rank = None
@@ -537,55 +540,53 @@ def generate_mu_page(mu):
     next_page_url = f"{BASE_URL}/{docs_page_name(current_week + 1, mu)}"
 
     html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{mu['name']} Dashboard</title>
-<style>{SHARED_STYLE}</style>
-</head>
-<body>
-<div class="container">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{mu['name']} Dashboard</title>
+        <style>{SHARED_STYLE}</style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <div class="mu-header">
+                <div class="mu-header-left">
+                    <img src="{mu['avatarUrl']}">
+                    <div>
+                        <div class="mu-name">{mu['name']}</div>
+                        <div class="mu-subtitle">Guild Dashboard</div>
+                    </div>
+                </div>
+                <div class="generated-at">Generated: {formatted_date}</div>
+            </div>
 
-    <!-- Header -->
-    <div class="mu-header">
-        <div class="mu-header-left">
-            <img src="{mu['avatarUrl']}">
-            <div>
-                <div class="mu-name">{mu['name']}</div>
-                <div class="mu-subtitle">Guild Dashboard</div>
+            <!-- MU Stat Cards -->
+            <div class="stats">{stats_html}</div>
+
+            <!-- Standard Rankings -->
+            <div class="section-label">Standard Rankings</div>
+            <div class="rankings">
+                {build_table("Weekly Damage Ranking", weekly_damage_ranking, "weeklyUserDamages", prev_members)}
+                {build_table("Total Damage Ranking", total_damage_ranking, "userDamages", prev_members)}
+                {build_table("Bounty Ranking", bounty_ranking, "userBounty", prev_members)}
+                {build_table("Wealth Ranking", wealth_ranking, "userWealth", prev_members)}
+            </div>
+
+            <!-- Roster Changes -->
+            {roster_changes_html if roster_changes_html else ""}
+
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <a href="{prev_page_url}" class="nav-btn nav-btn-prev">Semaine dernière</a>
+                <a href="{overview_link}" class="nav-btn">Overview</a>
+                <a href="{next_page_url}" class="nav-btn nav-btn-next">Semaine prochaine</a>
             </div>
         </div>
-        <div class="generated-at">Generated: {formatted_date}</div>
-    </div>
-
-    <!-- MU Stat Cards -->
-    <div class="stats">{stats_html}</div>
-
-    <!-- Standard Rankings -->
-    <div class="section-label">Standard Rankings</div>
-    <div class="rankings">
-        {build_table("Weekly Damage Ranking", weekly_damage_ranking, "weeklyUserDamages", prev_members)}
-        {build_table("Total Damage Ranking", total_damage_ranking, "userDamages", prev_members)}
-        {build_table("Bounty Ranking", bounty_ranking, "userBounty", prev_members)}
-        {build_table("Wealth Ranking", wealth_ranking, "userWealth", prev_members)}
-    </div>
-
-    <!-- Roster Changes -->
-    {roster_changes_html if roster_changes_html else ""}
-
-    <!-- Navigation Buttons -->
-    <div class="nav-buttons">
-        <a href="{prev_page_url}" class="nav-btn nav-btn-prev">Semaine dernière</a>
-        <a href="{overview_link}" class="nav-btn">Overview</a>
-        <a href="{next_page_url}" class="nav-btn nav-btn-next">Semaine prochaine</a>
-    </div>
-
-</div>
-</body>
-</html>
-"""
+    </body>
+    </html>
+    """
 
     Path(filename).write_text(html, encoding="utf-8")
     print(f"Generated {filename}")
@@ -598,7 +599,6 @@ def generate_mu_page(mu):
 # damage and combined total damage (both computed across the MUs listed
 # in data/mu_id.txt), side by side.
 # ============================================
-
 def discover_week_history():
     """
     Scan docs/ for already-published pages so the overview can link back
@@ -655,19 +655,20 @@ def build_week_history_html():
 
 
 def generate_overview(mu_entries):
-    total_weekly = sum(m["rankings"]["muWeeklyDamages"]["value"] for m in mu_entries)
-    total_all_time = sum(m["rankings"]["muDamages"]["value"] for m in mu_entries)
+    # --- FIX: same defensive access here, so one MU missing muWeeklyDamages
+    # or muDamages doesn't crash the overview page either. ---
+    total_weekly = sum(get_mu_stat(m["rankings"], "muWeeklyDamages")["value"] for m in mu_entries)
+    total_all_time = sum(get_mu_stat(m["rankings"], "muDamages")["value"] for m in mu_entries)
 
     # Rank MUs by weekly damage share for display order
-    ordered = sorted(mu_entries, key=lambda m: m["rankings"]["muWeeklyDamages"]["value"], reverse=True)
+    ordered = sorted(mu_entries, key=lambda m: get_mu_stat(m["rankings"], "muWeeklyDamages")["value"], reverse=True)
 
     cards = []
     for mu in ordered:
-        weekly_value = mu["rankings"]["muWeeklyDamages"]["value"]
-        total_value = mu["rankings"]["muDamages"]["value"]
+        weekly_value = get_mu_stat(mu["rankings"], "muWeeklyDamages")["value"]
+        total_value = get_mu_stat(mu["rankings"], "muDamages")["value"]
         weekly_pct = (weekly_value / total_weekly * 100) if total_weekly else 0
         total_pct = (total_value / total_all_time * 100) if total_all_time else 0
-
         page_link = docs_page_name(current_week, mu)
 
         cards.append(f"""
@@ -694,36 +695,34 @@ def generate_overview(mu_entries):
     week_history_html = build_week_history_html()
 
     html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warera Spectre Log — Overview</title>
-<style>{SHARED_STYLE}</style>
-</head>
-<body>
-<div class="container">
-
-    <div class="mu-header">
-        <div class="mu-header-left">
-            <div>
-                <div class="mu-name">MU Overview</div>
-                <div class="mu-subtitle">Damage share across all tracked MUs — Week {current_week}</div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Warera Spectre Log — Overview</title>
+        <style>{SHARED_STYLE}</style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="mu-header">
+                <div class="mu-header-left">
+                    <div>
+                        <div class="mu-name">MU Overview</div>
+                        <div class="mu-subtitle">Damage share across all tracked MUs — Week {current_week}</div>
+                    </div>
+                </div>
+                <div class="generated-at">Generated: {formatted_date}</div>
             </div>
+
+            <div class="section-label">Tracked MUs ({len(mu_entries)})</div>
+            {''.join(cards)}
+
+            {week_history_html}
         </div>
-        <div class="generated-at">Generated: {formatted_date}</div>
-    </div>
-
-    <div class="section-label">Tracked MUs ({len(mu_entries)})</div>
-    {''.join(cards)}
-
-    {week_history_html}
-
-</div>
-</body>
-</html>
-"""
+    </body>
+    </html>
+    """
 
     Path(OVERVIEW_HTML).write_text(html, encoding="utf-8")
     print(f"Generated {OVERVIEW_HTML}")
@@ -732,7 +731,6 @@ def generate_overview(mu_entries):
 # ============================================
 # MAIN
 # ============================================
-
 def main():
     if not current_mus:
         print("No MUs found in cleaneddata.json — nothing to generate.")
