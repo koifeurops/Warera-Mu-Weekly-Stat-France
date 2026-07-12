@@ -710,7 +710,7 @@ def generate_overview(mu_entries):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Warera Spectre Log — Overview</title>
+        <title>Warera France Log — Overview</title>
         <style>{SHARED_STYLE}</style>
     </head>
     <body>
