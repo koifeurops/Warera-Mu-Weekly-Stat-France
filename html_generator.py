@@ -18,7 +18,7 @@ previous_week_json = f"{previous_week_folder}/cleaneddata.json"
 
 # Where the published pages end up (see .github/workflows/main.yml).
 DOCS_DIR = "docs"
-BASE_URL = "https://koifeurops.github.io/Warera-Spectre-Log"
+BASE_URL = "https://koifeurops.github.io/Warera-Mu-Weekly-Stat-France"
 
 TIER_COLORS = {
     "master": "#ff4d4d",
