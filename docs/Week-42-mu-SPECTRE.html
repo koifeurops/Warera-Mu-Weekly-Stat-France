@@ -1,0 +1,1976 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SPECTRE Dashboard</title>
+        <style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0b1220; color:white; font-family:Arial,sans-serif; padding:24px; }
+.container { max-width:1900px; margin:auto; }
+.mu-header {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding:24px; margin-bottom:24px;
+    background:#131d31; border:1px solid #25324d; border-radius:18px;
+}
+.mu-header-left { display:flex; align-items:center; gap:20px; }
+.mu-header img { width:96px; height:96px; border-radius:50%; }
+.mu-name { font-size:2rem; font-weight:bold; }
+.mu-subtitle { color:#94a3b8; margin-top:6px; }
+.generated-at { color:#94a3b8; font-size:0.9rem; text-align:right; }
+.stats {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:18px; margin-bottom:24px;
+}
+.stat-card {
+    background:#131d31; border:1px solid #25324d;
+    border-radius:16px; padding:20px;
+}
+.stat-title { color:#94a3b8; font-size:.9rem; }
+.stat-value { font-size:1.8rem; font-weight:bold; margin-top:10px; }
+.stat-rank { margin-top:8px; color:#cbd5e1; }
+.stat-diff { font-size:0.9rem; margin-top:6px; }
+.stat-rank-evolution { font-size:0.8rem; color:#94a3b8; margin-top:4px; }
+.master { border-left:6px solid #ff4d4d; }
+.diamond { border-left:6px solid #3fa9ff; }
+.platinum { border-left:6px solid #b8c2cc; }
+.gold { border-left:6px solid #f5c542; }
+.silver { border-left:6px solid #bcbcbc; }
+.bronze { border-left:6px solid #c57a44; }
+.section-label {
+    color:#94a3b8; font-size:0.8rem; text-transform:uppercase;
+    letter-spacing:0.08em; margin-bottom:10px; margin-top:24px; padding-left:4px;
+}
+.rankings, .rankings-two-col {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:20px;
+}
+.ranking-card {
+    background:#131d31; border:1px solid #25324d;
+    border-radius:18px; overflow:hidden;
+}
+.ranking-title {
+    background:#1a2740; padding:18px;
+    font-weight:bold; font-size:1.1rem;
+}
+.roster-count { font-weight:400; color:#94a3b8; font-size:0.9rem; }
+table { width:100%; border-collapse:collapse; }
+thead th { position:sticky; top:0; background:#1f2f4d; }
+th { text-align:left; padding:12px; }
+td { padding:12px; border-bottom:1px solid #202f49; }
+tbody tr:hover { background:rgba(255,255,255,.03); }
+.member { display:flex; align-items:center; gap:12px; }
+.avatar {
+    width:42px; height:42px; border-radius:50%;
+    object-fit:cover; border:2px solid #334155;
+}
+.member-info { display:flex; flex-direction:column; }
+.member-name { font-weight:600; }
+.member-name .former-name { color:#94a3b8; font-size:0.78rem; font-weight:400; margin-left:6px; }
+.member-level { color:#94a3b8; font-size:.85rem; }
+.tier {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 10px; border-radius:999px;
+    color:white; font-size:.85rem; font-weight:bold;
+}
+.rank-col { width:110px; white-space:nowrap; }
+.pos-up { font-size:0.72rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-down { font-size:0.72rem; font-weight:700; color:#f87171; background:rgba(248,113,113,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.pos-same { font-size:0.72rem; color:#64748b; margin-left:4px; }
+.pos-new { font-size:0.72rem; font-weight:700; color:#60a5fa; background:rgba(96,165,250,0.12); padding:2px 6px; border-radius:6px; margin-left:4px; }
+.value-col { font-weight:bold; }
+.rank-evolution-col { font-weight:bold; color:#94a3b8; font-size:0.9rem; }
+.diff-col { font-weight:bold; }
+/* Roster changes */
+.roster-list { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+.roster-row {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 12px; border-radius:10px;
+    background:#0f1929; border:1px solid #1e2f48;
+}
+.roster-badge {
+    margin-left:auto; padding:4px 12px;
+    border-radius:999px; font-size:0.8rem; font-weight:bold; color:white;
+}
+.roster-empty {
+    padding:20px 16px; color:#94a3b8; font-size:0.9rem; text-align:center;
+}
+/* Navigation buttons */
+.nav-buttons {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:16px; margin-top:32px; padding-top:24px; border-top:1px solid #25324d;
+}
+.nav-btn {
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 28px; background:#131d31; border:1px solid #25324d;
+    border-radius:12px; color:white; font-size:1rem; font-weight:600;
+    text-decoration:none; cursor:pointer;
+    transition:background 0.18s, border-color 0.18s, transform 0.12s;
+}
+.nav-btn:hover { background:#1a2740; border-color:#3fa9ff; transform:translateY(-2px); }
+.nav-btn:active { transform:translateY(0); }
+.nav-btn-prev::before { content:"←"; font-size:1.1rem; }
+.nav-btn-next::after { content:"→"; font-size:1.1rem; }
+.nav-btn-disabled { opacity:0.35; pointer-events:none; }
+/* Overview page: MU comparison + damage-share bars */
+.mu-overview-card {
+    background:#131d31; border:1px solid #25324d; border-radius:18px;
+    padding:20px; margin-bottom:18px;
+}
+.mu-overview-top { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.mu-overview-top img { width:56px; height:56px; border-radius:50%; }
+.mu-overview-name { font-size:1.3rem; font-weight:bold; }
+.mu-overview-name a { color:inherit; text-decoration:none; }
+.mu-overview-name a:hover { text-decoration:underline; }
+.mu-overview-bars { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.share-block { }
+.share-label { display:flex; justify-content:space-between; color:#94a3b8; font-size:0.85rem; margin-bottom:6px; }
+.share-bar-track { background:#0f1929; border-radius:999px; height:14px; overflow:hidden; border:1px solid #1e2f48; }
+.share-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#3fa9ff,#60a5fa); }
+.share-bar-fill.total { background:linear-gradient(90deg,#f5c542,#ff9d4d); }
+.share-value { margin-top:6px; font-size:0.9rem; color:#cbd5e1; }
+.week-history { display:flex; flex-direction:column; gap:10px; }
+.week-history-row {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:12px 16px; border-radius:10px;
+    background:#0f1929; border:1px solid #1e2f48;
+}
+.week-history-title { font-weight:600; min-width:90px; }
+.week-history-links { display:flex; gap:8px; flex-wrap:wrap; }
+.week-history-links a {
+    color:#cbd5e1; text-decoration:none; background:#1a2740;
+    border:1px solid #25324d; border-radius:8px; padding:4px 10px; font-size:0.85rem;
+}
+.week-history-links a:hover { border-color:#3fa9ff; color:white; }
+@media(max-width:1400px) { .rankings, .rankings-two-col, .mu-overview-bars { grid-template-columns:1fr; } }
+@media(max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px) {
+    .stats { grid-template-columns:1fr; }
+    .mu-header { flex-direction:column; text-align:center; }
+    .nav-buttons { flex-direction:column; }
+    .nav-btn { width:100%; justify-content:center; }
+}
+</style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <div class="mu-header">
+                <div class="mu-header-left">
+                    <img src="https://media.warera.io/avatars/mu/mu-69d206fc97650a3fb98a8520-1788429171695-xngmje5z.png">
+                    <div>
+                        <div class="mu-name">SPECTRE</div>
+                        <div class="mu-subtitle">Guild Dashboard</div>
+                    </div>
+                </div>
+                <div class="generated-at">Generated: Monday, 12 October 00:41</div>
+            </div>
+
+            <!-- MU Stat Cards -->
+            <div class="stats">
+    <div class="stat-card bronze">
+        <div class="stat-title">Weekly Damage</div>
+        <div class="stat-value">0</div>
+        
+        
+        <div class="stat-rank">
+            🥉 Rank #N/A
+        </div>
+    </div>
+    
+    <div class="stat-card master">
+        <div class="stat-title">Total Damage</div>
+        <div class="stat-value">4,521,981,146</div>
+        <div class="stat-diff" style="color:#4ade80">+205,063,247</div>
+        <div class="stat-rank-evolution">#5 → #5</div>
+        <div class="stat-rank">
+            👑 Rank #5
+        </div>
+    </div>
+    
+    <div class="stat-card diamond">
+        <div class="stat-title">Bounty</div>
+        <div class="stat-value">109,885.52</div>
+        <div class="stat-diff" style="color:#4ade80">+1,032.81</div>
+        <div class="stat-rank-evolution">#19 → #19</div>
+        <div class="stat-rank">
+            💎 Rank #19
+        </div>
+    </div>
+    
+    <div class="stat-card master">
+        <div class="stat-title">Reputation</div>
+        <div class="stat-value">71.92</div>
+        <div class="stat-diff" style="color:#4ade80">+7.31</div>
+        <div class="stat-rank-evolution">#2 → #1 (↑1)</div>
+        <div class="stat-rank">
+            👑 Rank #1
+        </div>
+    </div>
+    </div>
+
+            <!-- Standard Rankings -->
+            <div class="section-label">Standard Rankings</div>
+            <div class="rankings">
+                
+    <div class="ranking-card">
+        <div class="ranking-title">Weekly Damage Ranking</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Member</th>
+                    <th>Value</th>
+                    <th>Rank Evolution</th>
+                    <th>Diff</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+        <tr>
+            <td class="rank-col">#1 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b759efecdf9bab1951e6-1788429161834-f8moml0g.png" alt="Leogann">
+                    <div class="member-info">
+                        <div class="member-name">Leogann</div>
+                        <div class="member-level">Level 33</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#2 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69036187009657975ceb4e37-1788448661785-1v8xq6os.png" alt="Aye-aye">
+                    <div class="member-info">
+                        <div class="member-name">Aye-aye</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#3 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6945bd36a3e161cb35b91c52-1788636512819-h256uxfa.png" alt="Jaskar">
+                    <div class="member-info">
+                        <div class="member-name">Jaskar</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#4 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b758efecdf9bab1950b3-1788860980052-dcz67pvk.png" alt="Miltiados">
+                    <div class="member-info">
+                        <div class="member-name">Miltiados</div>
+                        <div class="member-level">Level 34</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#5 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813bf46794885f3de4d03bc-1788458890214-682crhrd.png" alt="Succo">
+                    <div class="member-info">
+                        <div class="member-name">Succo</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#6 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/692758d399b6f95d03f9fef7-1788440855398-bhsvlb4t.png" alt="Best">
+                    <div class="member-info">
+                        <div class="member-name">Best</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#7 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6916e072991d93d5d34deedb-1788441588842-mrrbk3x2.jpg" alt="Tyfouxxx">
+                    <div class="member-info">
+                        <div class="member-name">Tyfouxxx</div>
+                        <div class="member-level">Level 40</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#8 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813df18a97d6575920dc94e-1788438728074-5r6ofc87.png" alt="Flamby">
+                    <div class="member-info">
+                        <div class="member-name">Flamby</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#9 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6914918a0b5348273322d176-1788439485459-q3o10d80.png" alt="Azdor">
+                    <div class="member-info">
+                        <div class="member-name">Azdor</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#10 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6814857f3542fdf1634e531d-1788430746521-dmhnqtvh.webp" alt="Akhonous">
+                    <div class="member-info">
+                        <div class="member-name">Akhonous</div>
+                        <div class="member-level">Level 28</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#11 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69065e23e8e12c3b9ff9f06b-1788436250292-79puskq3.png" alt="Faruko">
+                    <div class="member-info">
+                        <div class="member-name">Faruko</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#12 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6902032f582da7f4b18f5902-1788416880751-0u22xzqn.png" alt="Pyxl">
+                    <div class="member-info">
+                        <div class="member-name">Pyxl</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#13 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69418fc777214006429fdbbb-1788639182314-n1eru9n0.jpg" alt="Sunfall">
+                    <div class="member-info">
+                        <div class="member-name">Sunfall</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#14 <span class="pos-up">16→14</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69295ca87c6ffcfbe2ffbbc8-1788684344492-rmk6tpy0.png" alt="Chouchou">
+                    <div class="member-info">
+                        <div class="member-name">Chouchou</div>
+                        <div class="member-level">Level 47</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#15 <span class="pos-up">17→15</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69d673aff7cc0387adb054d8-1788697307383-hkz2dvfo.png" alt="Mxz">
+                    <div class="member-info">
+                        <div class="member-name">Mxz</div>
+                        <div class="member-level">Level 45</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#16 <span class="pos-up">18→16</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6919c7be99b6f95d037a8087-1788604074909-wrz3ep3c.png" alt="hachelle">
+                    <div class="member-info">
+                        <div class="member-name">hachelle</div>
+                        <div class="member-level">Level 50</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#17 <span class="pos-up">19→17</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/694facec9fa7589fa0a9335e-1788437401656-o026tff1.png" alt="Kolossal">
+                    <div class="member-info">
+                        <div class="member-name">Kolossal</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#18 <span class="pos-up">20→18</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a05f131aa7604ab1180f403-1788604950314-rc9eqg7a.png" alt="Toppo">
+                    <div class="member-info">
+                        <div class="member-name">Toppo</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#19 <span class="pos-up">21→19</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69af4b2836fe96b989267116-1788430946215-icyzbl60.png" alt="Charly">
+                    <div class="member-info">
+                        <div class="member-name">Charly</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#20 <span class="pos-up">22→20</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a21c5d4481683d5bd4b6ff1-1788499928540-7ynxjtvz.png" alt="LaCalotteDeSesMorts">
+                    <div class="member-info">
+                        <div class="member-name">LaCalotteDeSesMorts</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#21 <span class="pos-up">23→21</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69b5a54ce853e271ce4b8f0f-1789387224155-03eqj9mg.png" alt="Olorin">
+                    <div class="member-info">
+                        <div class="member-name">Olorin</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#22 <span class="pos-up">24→22</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69fbc07eb870b39c777d37e5-1788900556622-ifnrpeyt.png" alt="Ayatt_La_Buse">
+                    <div class="member-info">
+                        <div class="member-name">Ayatt_La_Buse</div>
+                        <div class="member-level">Level 42</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#23 <span class="pos-up">25→23</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a00a380465a38516ef8e581-1791128608564-xo1zy98a.png" alt="LaSuze">
+                    <div class="member-info">
+                        <div class="member-name">LaSuze</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#24 <span class="pos-new">New</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6818979a0aebee2e83d96f14-1789219761504-whty12b4.jpg" alt="Leyomis">
+                    <div class="member-info">
+                        <div class="member-name">Leyomis</div>
+                        <div class="member-level">Level 31</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">0</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        </tbody>
+        </table>
+    </div>
+    
+                
+    <div class="ranking-card">
+        <div class="ranking-title">Total Damage Ranking</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Member</th>
+                    <th>Value</th>
+                    <th>Rank Evolution</th>
+                    <th>Diff</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+        <tr>
+            <td class="rank-col">#1 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b759efecdf9bab1951e6-1788429161834-f8moml0g.png" alt="Leogann">
+                    <div class="member-info">
+                        <div class="member-name">Leogann</div>
+                        <div class="member-level">Level 33</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">460,393,030</td>
+            <td class="rank-evolution-col">#8 → #6 (↑2)</td>
+            <td class="diff-col" style="color:#4ade80">+5,930,962</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#2 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b758efecdf9bab1950b3-1788860980052-dcz67pvk.png" alt="Miltiados">
+                    <div class="member-info">
+                        <div class="member-name">Miltiados</div>
+                        <div class="member-level">Level 34</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">360,698,049</td>
+            <td class="rank-evolution-col">#25 → #27 (↓2)</td>
+            <td class="diff-col" style="color:#4ade80">+6,129,268</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#3 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813bf46794885f3de4d03bc-1788458890214-682crhrd.png" alt="Succo">
+                    <div class="member-info">
+                        <div class="member-name">Succo</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">323,644,699</td>
+            <td class="rank-evolution-col">#40 → #38 (↑2)</td>
+            <td class="diff-col" style="color:#4ade80">+8,019,298</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#4 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813df18a97d6575920dc94e-1788438728074-5r6ofc87.png" alt="Flamby">
+                    <div class="member-info">
+                        <div class="member-name">Flamby</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">319,203,568</td>
+            <td class="rank-evolution-col">#41 → #41</td>
+            <td class="diff-col" style="color:#4ade80">+5,489,505</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#5 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6916e072991d93d5d34deedb-1788441588842-mrrbk3x2.jpg" alt="Tyfouxxx">
+                    <div class="member-info">
+                        <div class="member-name">Tyfouxxx</div>
+                        <div class="member-level">Level 40</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">245,341,161</td>
+            <td class="rank-evolution-col">#113 → #108 (↑5)</td>
+            <td class="diff-col" style="color:#4ade80">+11,495,558</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#6 <span class="pos-up">7→6</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69036187009657975ceb4e37-1788448661785-1v8xq6os.png" alt="Aye-aye">
+                    <div class="member-info">
+                        <div class="member-name">Aye-aye</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">225,783,822</td>
+            <td class="rank-evolution-col">#150 → #151 (↓1)</td>
+            <td class="diff-col" style="color:#4ade80">+7,172,880</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#7 <span class="pos-down">6→7</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6814857f3542fdf1634e531d-1788430746521-dmhnqtvh.webp" alt="Akhonous">
+                    <div class="member-info">
+                        <div class="member-name">Akhonous</div>
+                        <div class="member-level">Level 28</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">222,939,391</td>
+            <td class="rank-evolution-col">#147 → #160 (↓13)</td>
+            <td class="diff-col" style="color:#4ade80">+3,345,543</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#8 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6945bd36a3e161cb35b91c52-1788636512819-h256uxfa.png" alt="Jaskar">
+                    <div class="member-info">
+                        <div class="member-name">Jaskar</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">200,985,804</td>
+            <td class="rank-evolution-col">#221 → #224 (↓3)</td>
+            <td class="diff-col" style="color:#4ade80">+7,833,503</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#9 <span class="pos-up">10→9</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6902032f582da7f4b18f5902-1788416880751-0u22xzqn.png" alt="Pyxl">
+                    <div class="member-info">
+                        <div class="member-name">Pyxl</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">193,515,753</td>
+            <td class="rank-evolution-col">#256 → #250 (↑6)</td>
+            <td class="diff-col" style="color:#4ade80">+9,503,408</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#10 <span class="pos-down">9→10</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/692758d399b6f95d03f9fef7-1788440855398-bhsvlb4t.png" alt="Best">
+                    <div class="member-info">
+                        <div class="member-name">Best</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">192,672,023</td>
+            <td class="rank-evolution-col">#245 → #254 (↓9)</td>
+            <td class="diff-col" style="color:#4ade80">+6,238,645</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#11 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6919c7be99b6f95d037a8087-1788604074909-wrz3ep3c.png" alt="hachelle">
+                    <div class="member-info">
+                        <div class="member-name">hachelle</div>
+                        <div class="member-level">Level 50</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">189,072,819</td>
+            <td class="rank-evolution-col">#275 → #272 (↑3)</td>
+            <td class="diff-col" style="color:#4ade80">+9,751,027</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#12 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69418fc777214006429fdbbb-1788639182314-n1eru9n0.jpg" alt="Sunfall">
+                    <div class="member-info">
+                        <div class="member-name">Sunfall</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">185,184,773</td>
+            <td class="rank-evolution-col">#287 → #291 (↓4)</td>
+            <td class="diff-col" style="color:#4ade80">+8,751,352</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#13 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69065e23e8e12c3b9ff9f06b-1788436250292-79puskq3.png" alt="Faruko">
+                    <div class="member-info">
+                        <div class="member-name">Faruko</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">175,716,882</td>
+            <td class="rank-evolution-col">#319 → #338 (↓19)</td>
+            <td class="diff-col" style="color:#4ade80">+5,426,971</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#14 <span class="pos-up">15→14</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6914918a0b5348273322d176-1788439485459-q3o10d80.png" alt="Azdor">
+                    <div class="member-info">
+                        <div class="member-name">Azdor</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">146,531,351</td>
+            <td class="rank-evolution-col">#486 → #519 (↓33)</td>
+            <td class="diff-col" style="color:#4ade80">+4,188,147</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#15 <span class="pos-new">New</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6818979a0aebee2e83d96f14-1789219761504-whty12b4.jpg" alt="Leyomis">
+                    <div class="member-info">
+                        <div class="member-name">Leyomis</div>
+                        <div class="member-level">Level 31</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">124,926,978</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#16 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69295ca87c6ffcfbe2ffbbc8-1788684344492-rmk6tpy0.png" alt="Chouchou">
+                    <div class="member-info">
+                        <div class="member-name">Chouchou</div>
+                        <div class="member-level">Level 47</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">118,027,496</td>
+            <td class="rank-evolution-col">#921 → #823 (↑98)</td>
+            <td class="diff-col" style="color:#4ade80">+13,357,324</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#17 <span class="pos-up">18→17</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69d673aff7cc0387adb054d8-1788697307383-hkz2dvfo.png" alt="Mxz">
+                    <div class="member-info">
+                        <div class="member-name">Mxz</div>
+                        <div class="member-level">Level 45</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">114,455,930</td>
+            <td class="rank-evolution-col">#972 → #884 (↑88)</td>
+            <td class="diff-col" style="color:#4ade80">+11,889,196</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#18 <span class="pos-down">17→18</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/694facec9fa7589fa0a9335e-1788437401656-o026tff1.png" alt="Kolossal">
+                    <div class="member-info">
+                        <div class="member-name">Kolossal</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">108,510,662</td>
+            <td class="rank-evolution-col">#969 → #984 (↓15)</td>
+            <td class="diff-col" style="color:#4ade80">+5,811,888</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#19 <span class="pos-up">20→19</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69af4b2836fe96b989267116-1788430946215-icyzbl60.png" alt="Charly">
+                    <div class="member-info">
+                        <div class="member-name">Charly</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">89,082,281</td>
+            <td class="rank-evolution-col">#1596 → #1418 (↑178)</td>
+            <td class="diff-col" style="color:#4ade80">+11,756,387</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#20 <span class="pos-up">22→20</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69b5a54ce853e271ce4b8f0f-1789387224155-03eqj9mg.png" alt="Olorin">
+                    <div class="member-info">
+                        <div class="member-name">Olorin</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">73,560,007</td>
+            <td class="rank-evolution-col">#2368 → #1919 (↑449)</td>
+            <td class="diff-col" style="color:#4ade80">+15,788,131</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#21 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a05f131aa7604ab1180f403-1788604950314-rc9eqg7a.png" alt="Toppo">
+                    <div class="member-info">
+                        <div class="member-name">Toppo</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">68,997,627</td>
+            <td class="rank-evolution-col">#2362 → #2101 (↑261)</td>
+            <td class="diff-col" style="color:#4ade80">+11,101,874</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#22 <span class="pos-up">23→22</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a21c5d4481683d5bd4b6ff1-1788499928540-7ynxjtvz.png" alt="LaCalotteDeSesMorts">
+                    <div class="member-info">
+                        <div class="member-name">LaCalotteDeSesMorts</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">49,244,747</td>
+            <td class="rank-evolution-col">#3204 → #3034 (↑170)</td>
+            <td class="diff-col" style="color:#4ade80">+6,553,783</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#23 <span class="pos-up">24→23</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69fbc07eb870b39c777d37e5-1788900556622-ifnrpeyt.png" alt="Ayatt_La_Buse">
+                    <div class="member-info">
+                        <div class="member-name">Ayatt_La_Buse</div>
+                        <div class="member-level">Level 42</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">37,769,315</td>
+            <td class="rank-evolution-col">#4403 → #3816 (↑587)</td>
+            <td class="diff-col" style="color:#4ade80">+9,744,296</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#24 <span class="pos-up">25→24</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a00a380465a38516ef8e581-1791128608564-xo1zy98a.png" alt="LaSuze">
+                    <div class="member-info">
+                        <div class="member-name">LaSuze</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">29,886,518</td>
+            <td class="rank-evolution-col">#5303 → #4460 (↑843)</td>
+            <td class="diff-col" style="color:#4ade80">+10,062,774</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        </tbody>
+        </table>
+    </div>
+    
+                
+    <div class="ranking-card">
+        <div class="ranking-title">Bounty Ranking</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Member</th>
+                    <th>Value</th>
+                    <th>Rank Evolution</th>
+                    <th>Diff</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+        <tr>
+            <td class="rank-col">#1 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b759efecdf9bab1951e6-1788429161834-f8moml0g.png" alt="Leogann">
+                    <div class="member-info">
+                        <div class="member-name">Leogann</div>
+                        <div class="member-level">Level 33</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">47,369.79</td>
+            <td class="rank-evolution-col">#6 → #6</td>
+            <td class="diff-col" style="color:#4ade80">+9.89</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#2 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b758efecdf9bab1950b3-1788860980052-dcz67pvk.png" alt="Miltiados">
+                    <div class="member-info">
+                        <div class="member-name">Miltiados</div>
+                        <div class="member-level">Level 34</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">39,438.10</td>
+            <td class="rank-evolution-col">#12 → #12</td>
+            <td class="diff-col" style="color:#4ade80">+27.58</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#3 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813bf46794885f3de4d03bc-1788458890214-682crhrd.png" alt="Succo">
+                    <div class="member-info">
+                        <div class="member-name">Succo</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">29,298.77</td>
+            <td class="rank-evolution-col">#19 → #20 (↓1)</td>
+            <td class="diff-col" style="color:#4ade80">+49.04</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#4 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6916e072991d93d5d34deedb-1788441588842-mrrbk3x2.jpg" alt="Tyfouxxx">
+                    <div class="member-info">
+                        <div class="member-name">Tyfouxxx</div>
+                        <div class="member-level">Level 40</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">11,261.45</td>
+            <td class="rank-evolution-col">#124 → #122 (↑2)</td>
+            <td class="diff-col" style="color:#4ade80">+47.48</td>
+            <td><span class="tier" style="background:#ff4d4d;">👑 Master</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#5 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813df18a97d6575920dc94e-1788438728074-5r6ofc87.png" alt="Flamby">
+                    <div class="member-info">
+                        <div class="member-name">Flamby</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">9,555.90</td>
+            <td class="rank-evolution-col">#159 → #158 (↑1)</td>
+            <td class="diff-col" style="color:#4ade80">+14.32</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#6 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69036187009657975ceb4e37-1788448661785-1v8xq6os.png" alt="Aye-aye">
+                    <div class="member-info">
+                        <div class="member-name">Aye-aye</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">9,231.10</td>
+            <td class="rank-evolution-col">#168 → #170 (↓2)</td>
+            <td class="diff-col" style="color:#4ade80">+58.73</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#7 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6814857f3542fdf1634e531d-1788430746521-dmhnqtvh.webp" alt="Akhonous">
+                    <div class="member-info">
+                        <div class="member-name">Akhonous</div>
+                        <div class="member-level">Level 28</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">7,237.79</td>
+            <td class="rank-evolution-col">#241 → #243 (↓2)</td>
+            <td class="diff-col" style="color:#4ade80">+3.86</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#8 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/692758d399b6f95d03f9fef7-1788440855398-bhsvlb4t.png" alt="Best">
+                    <div class="member-info">
+                        <div class="member-name">Best</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">4,817.88</td>
+            <td class="rank-evolution-col">#442 → #450 (↓8)</td>
+            <td class="diff-col" style="color:#4ade80">+19.11</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#9 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6945bd36a3e161cb35b91c52-1788636512819-h256uxfa.png" alt="Jaskar">
+                    <div class="member-info">
+                        <div class="member-name">Jaskar</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">4,720.71</td>
+            <td class="rank-evolution-col">#462 → #466 (↓4)</td>
+            <td class="diff-col" style="color:#4ade80">+67.61</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#10 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69418fc777214006429fdbbb-1788639182314-n1eru9n0.jpg" alt="Sunfall">
+                    <div class="member-info">
+                        <div class="member-name">Sunfall</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">4,319.60</td>
+            <td class="rank-evolution-col">#545 → #545</td>
+            <td class="diff-col" style="color:#4ade80">+84.57</td>
+            <td><span class="tier" style="background:#3fa9ff;">💎 Diamond</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#11 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6902032f582da7f4b18f5902-1788416880751-0u22xzqn.png" alt="Pyxl">
+                    <div class="member-info">
+                        <div class="member-name">Pyxl</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">3,238.89</td>
+            <td class="rank-evolution-col">#783 → #810 (↓27)</td>
+            <td class="diff-col" style="color:#4ade80">+30.71</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#12 <span class="pos-new">New</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6818979a0aebee2e83d96f14-1789219761504-whty12b4.jpg" alt="Leyomis">
+                    <div class="member-info">
+                        <div class="member-name">Leyomis</div>
+                        <div class="member-level">Level 31</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">3,016.95</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#13 <span class="pos-down">12→13</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/694facec9fa7589fa0a9335e-1788437401656-o026tff1.png" alt="Kolossal">
+                    <div class="member-info">
+                        <div class="member-name">Kolossal</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">3,003.13</td>
+            <td class="rank-evolution-col">#882 → #906 (↓24)</td>
+            <td class="diff-col" style="color:#4ade80">+30.34</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#14 <span class="pos-down">13→14</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69065e23e8e12c3b9ff9f06b-1788436250292-79puskq3.png" alt="Faruko">
+                    <div class="member-info">
+                        <div class="member-name">Faruko</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">2,847.23</td>
+            <td class="rank-evolution-col">#962 → #978 (↓16)</td>
+            <td class="diff-col" style="color:#4ade80">+54.56</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#15 <span class="pos-down">14→15</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6919c7be99b6f95d037a8087-1788604074909-wrz3ep3c.png" alt="hachelle">
+                    <div class="member-info">
+                        <div class="member-name">hachelle</div>
+                        <div class="member-level">Level 50</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">2,158.34</td>
+            <td class="rank-evolution-col">#1347 → #1406 (↓59)</td>
+            <td class="diff-col" style="color:#4ade80">+8.64</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#16 <span class="pos-down">15→16</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69d673aff7cc0387adb054d8-1788697307383-hkz2dvfo.png" alt="Mxz">
+                    <div class="member-info">
+                        <div class="member-name">Mxz</div>
+                        <div class="member-level">Level 45</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">1,764.65</td>
+            <td class="rank-evolution-col">#1773 → #1758 (↑15)</td>
+            <td class="diff-col" style="color:#4ade80">+66.56</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#17 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69295ca87c6ffcfbe2ffbbc8-1788684344492-rmk6tpy0.png" alt="Chouchou">
+                    <div class="member-info">
+                        <div class="member-name">Chouchou</div>
+                        <div class="member-level">Level 47</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">1,596.05</td>
+            <td class="rank-evolution-col">#1942 → #1966 (↓24)</td>
+            <td class="diff-col" style="color:#4ade80">+45.16</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#18 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a21c5d4481683d5bd4b6ff1-1788499928540-7ynxjtvz.png" alt="LaCalotteDeSesMorts">
+                    <div class="member-info">
+                        <div class="member-name">LaCalotteDeSesMorts</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">1,376.96</td>
+            <td class="rank-evolution-col">#2341 → #2295 (↑46)</td>
+            <td class="diff-col" style="color:#4ade80">+72.38</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#19 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6914918a0b5348273322d176-1788439485459-q3o10d80.png" alt="Azdor">
+                    <div class="member-info">
+                        <div class="member-name">Azdor</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">1,233.78</td>
+            <td class="rank-evolution-col">#2477 → #2538 (↓61)</td>
+            <td class="diff-col" style="color:#4ade80">+18.11</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#20 <span class="pos-up">21→20</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69b5a54ce853e271ce4b8f0f-1789387224155-03eqj9mg.png" alt="Olorin">
+                    <div class="member-info">
+                        <div class="member-name">Olorin</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">898.95</td>
+            <td class="rank-evolution-col">#3205 → #3316 (↓111)</td>
+            <td class="diff-col" style="color:#4ade80">+3.41</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#21 <span class="pos-up">23→21</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a05f131aa7604ab1180f403-1788604950314-rc9eqg7a.png" alt="Toppo">
+                    <div class="member-info">
+                        <div class="member-name">Toppo</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">788.03</td>
+            <td class="rank-evolution-col">#4012 → #3667 (↑345)</td>
+            <td class="diff-col" style="color:#4ade80">+138.66</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#22 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a00a380465a38516ef8e581-1791128608564-xo1zy98a.png" alt="LaSuze">
+                    <div class="member-info">
+                        <div class="member-name">LaSuze</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">781.34</td>
+            <td class="rank-evolution-col">#3762 → #3688 (↑74)</td>
+            <td class="diff-col" style="color:#4ade80">+60.88</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#23 <span class="pos-up">24→23</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69af4b2836fe96b989267116-1788430946215-icyzbl60.png" alt="Charly">
+                    <div class="member-info">
+                        <div class="member-name">Charly</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">643.65</td>
+            <td class="rank-evolution-col">#4156 → #4170 (↓14)</td>
+            <td class="diff-col" style="color:#4ade80">+30.45</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#24 <span class="pos-up">25→24</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69fbc07eb870b39c777d37e5-1788900556622-ifnrpeyt.png" alt="Ayatt_La_Buse">
+                    <div class="member-info">
+                        <div class="member-name">Ayatt_La_Buse</div>
+                        <div class="member-level">Level 42</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">339.93</td>
+            <td class="rank-evolution-col">#5912 → #5662 (↑250)</td>
+            <td class="diff-col" style="color:#4ade80">+55.63</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        </tbody>
+        </table>
+    </div>
+    
+                
+    <div class="ranking-card">
+        <div class="ranking-title">Wealth Ranking</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Member</th>
+                    <th>Value</th>
+                    <th>Rank Evolution</th>
+                    <th>Diff</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+        <tr>
+            <td class="rank-col">#1 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6919c7be99b6f95d037a8087-1788604074909-wrz3ep3c.png" alt="hachelle">
+                    <div class="member-info">
+                        <div class="member-name">hachelle</div>
+                        <div class="member-level">Level 50</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">56,776.36</td>
+            <td class="rank-evolution-col">#969 → #996 (↓27)</td>
+            <td class="diff-col" style="color:#4ade80">+2,792.18</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#2 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813df18a97d6575920dc94e-1788438728074-5r6ofc87.png" alt="Flamby">
+                    <div class="member-info">
+                        <div class="member-name">Flamby</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">54,393.05</td>
+            <td class="rank-evolution-col">#1054 → #1183 (↓129)</td>
+            <td class="diff-col" style="color:#4ade80">+1,661.88</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#3 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/694facec9fa7589fa0a9335e-1788437401656-o026tff1.png" alt="Kolossal">
+                    <div class="member-info">
+                        <div class="member-name">Kolossal</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">54,206.98</td>
+            <td class="rank-evolution-col">#1131 → #1189 (↓58)</td>
+            <td class="diff-col" style="color:#4ade80">+2,480.40</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#4 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69418fc777214006429fdbbb-1788639182314-n1eru9n0.jpg" alt="Sunfall">
+                    <div class="member-info">
+                        <div class="member-name">Sunfall</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">51,804.81</td>
+            <td class="rank-evolution-col">#1268 → #1380 (↓112)</td>
+            <td class="diff-col" style="color:#4ade80">+1,741.42</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#5 <span class="pos-up">6→5</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a00a380465a38516ef8e581-1791128608564-xo1zy98a.png" alt="LaSuze">
+                    <div class="member-info">
+                        <div class="member-name">LaSuze</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">44,176.61</td>
+            <td class="rank-evolution-col">#2204 → #2275 (↓71)</td>
+            <td class="diff-col" style="color:#4ade80">+2,188.78</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#6 <span class="pos-down">5→6</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69b5a54ce853e271ce4b8f0f-1789387224155-03eqj9mg.png" alt="Olorin">
+                    <div class="member-info">
+                        <div class="member-name">Olorin</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">43,680.52</td>
+            <td class="rank-evolution-col">#1913 → #2350 (↓437)</td>
+            <td class="diff-col" style="color:#f87171">-400.83</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#7 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69fbc07eb870b39c777d37e5-1788900556622-ifnrpeyt.png" alt="Ayatt_La_Buse">
+                    <div class="member-info">
+                        <div class="member-name">Ayatt_La_Buse</div>
+                        <div class="member-level">Level 42</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">41,495.10</td>
+            <td class="rank-evolution-col">#2579 → #2672 (↓93)</td>
+            <td class="diff-col" style="color:#4ade80">+1,867.16</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#8 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6814857f3542fdf1634e531d-1788430746521-dmhnqtvh.webp" alt="Akhonous">
+                    <div class="member-info">
+                        <div class="member-name">Akhonous</div>
+                        <div class="member-level">Level 28</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">37,994.61</td>
+            <td class="rank-evolution-col">#3187 → #3248 (↓61)</td>
+            <td class="diff-col" style="color:#4ade80">+1,824.75</td>
+            <td><span class="tier" style="background:#b8c2cc;">🔷 Platinum</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#9 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813bf46794885f3de4d03bc-1788458890214-682crhrd.png" alt="Succo">
+                    <div class="member-info">
+                        <div class="member-name">Succo</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">35,777.35</td>
+            <td class="rank-evolution-col">#3537 → #3661 (↓124)</td>
+            <td class="diff-col" style="color:#4ade80">+1,437.81</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#10 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69036187009657975ceb4e37-1788448661785-1v8xq6os.png" alt="Aye-aye">
+                    <div class="member-info">
+                        <div class="member-name">Aye-aye</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">31,047.02</td>
+            <td class="rank-evolution-col">#4774 → #4704 (↑70)</td>
+            <td class="diff-col" style="color:#4ade80">+2,221.56</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#11 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b758efecdf9bab1950b3-1788860980052-dcz67pvk.png" alt="Miltiados">
+                    <div class="member-info">
+                        <div class="member-name">Miltiados</div>
+                        <div class="member-level">Level 34</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">28,905.70</td>
+            <td class="rank-evolution-col">#5213 → #5197 (↑16)</td>
+            <td class="diff-col" style="color:#4ade80">+1,802.78</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#12 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69065e23e8e12c3b9ff9f06b-1788436250292-79puskq3.png" alt="Faruko">
+                    <div class="member-info">
+                        <div class="member-name">Faruko</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">22,427.87</td>
+            <td class="rank-evolution-col">#6866 → #6845 (↑21)</td>
+            <td class="diff-col" style="color:#4ade80">+1,374.47</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#13 <span class="pos-up">14→13</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a21c5d4481683d5bd4b6ff1-1788499928540-7ynxjtvz.png" alt="LaCalotteDeSesMorts">
+                    <div class="member-info">
+                        <div class="member-name">LaCalotteDeSesMorts</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">21,830.13</td>
+            <td class="rank-evolution-col">#7289 → #7003 (↑286)</td>
+            <td class="diff-col" style="color:#4ade80">+2,367.95</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#14 <span class="pos-down">13→14</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69d673aff7cc0387adb054d8-1788697307383-hkz2dvfo.png" alt="Mxz">
+                    <div class="member-info">
+                        <div class="member-name">Mxz</div>
+                        <div class="member-level">Level 45</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">21,404.96</td>
+            <td class="rank-evolution-col">#7090 → #7126 (↓36)</td>
+            <td class="diff-col" style="color:#4ade80">+1,175.22</td>
+            <td><span class="tier" style="background:#f5c542;">🥇 Gold</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#15 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6902032f582da7f4b18f5902-1788416880751-0u22xzqn.png" alt="Pyxl">
+                    <div class="member-info">
+                        <div class="member-name">Pyxl</div>
+                        <div class="member-level">Level 39</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">19,381.58</td>
+            <td class="rank-evolution-col">#7688 → #7688</td>
+            <td class="diff-col" style="color:#4ade80">+1,204.44</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#16 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69af4b2836fe96b989267116-1788430946215-icyzbl60.png" alt="Charly">
+                    <div class="member-info">
+                        <div class="member-name">Charly</div>
+                        <div class="member-level">Level 46</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">17,464.51</td>
+            <td class="rank-evolution-col">#8204 → #8271 (↓67)</td>
+            <td class="diff-col" style="color:#4ade80">+846.50</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#17 <span class="pos-new">New</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6818979a0aebee2e83d96f14-1789219761504-whty12b4.jpg" alt="Leyomis">
+                    <div class="member-info">
+                        <div class="member-name">Leyomis</div>
+                        <div class="member-level">Level 31</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">17,291.17</td>
+            <td class="rank-evolution-col">New</td>
+            
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#18 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6916e072991d93d5d34deedb-1788441588842-mrrbk3x2.jpg" alt="Tyfouxxx">
+                    <div class="member-info">
+                        <div class="member-name">Tyfouxxx</div>
+                        <div class="member-level">Level 40</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">15,783.49</td>
+            <td class="rank-evolution-col">#8763 → #8810 (↓47)</td>
+            <td class="diff-col" style="color:#4ade80">+803.24</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#19 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6914918a0b5348273322d176-1788439485459-q3o10d80.png" alt="Azdor">
+                    <div class="member-info">
+                        <div class="member-name">Azdor</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">13,951.10</td>
+            <td class="rank-evolution-col">#9524 → #9363 (↑161)</td>
+            <td class="diff-col" style="color:#4ade80">+1,282.52</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#20 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6945bd36a3e161cb35b91c52-1788636512819-h256uxfa.png" alt="Jaskar">
+                    <div class="member-info">
+                        <div class="member-name">Jaskar</div>
+                        <div class="member-level">Level 36</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">12,589.66</td>
+            <td class="rank-evolution-col">#9811 → #9811</td>
+            <td class="diff-col" style="color:#4ade80">+725.63</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#21 <span class="pos-up">22→21</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/69295ca87c6ffcfbe2ffbbc8-1788684344492-rmk6tpy0.png" alt="Chouchou">
+                    <div class="member-info">
+                        <div class="member-name">Chouchou</div>
+                        <div class="member-level">Level 47</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">11,512.58</td>
+            <td class="rank-evolution-col">#10053 → #10142 (↓89)</td>
+            <td class="diff-col" style="color:#4ade80">+343.39</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#22 <span class="pos-down">21→22</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6a05f131aa7604ab1180f403-1788604950314-rc9eqg7a.png" alt="Toppo">
+                    <div class="member-info">
+                        <div class="member-name">Toppo</div>
+                        <div class="member-level">Level 41</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">11,379.16</td>
+            <td class="rank-evolution-col">#10009 → #10190 (↓181)</td>
+            <td class="diff-col" style="color:#4ade80">+75.61</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#23 <span class="pos-same">—</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/692758d399b6f95d03f9fef7-1788440855398-bhsvlb4t.png" alt="Best">
+                    <div class="member-info">
+                        <div class="member-name">Best</div>
+                        <div class="member-level">Level 32</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">10,592.15</td>
+            <td class="rank-evolution-col">#10346 → #10432 (↓86)</td>
+            <td class="diff-col" style="color:#4ade80">+226.24</td>
+            <td><span class="tier" style="background:#bcbcbc;">🥈 Silver</span></td>
+        </tr>
+        
+        <tr>
+            <td class="rank-col">#24 <span class="pos-up">25→24</span></td>
+            <td>
+                <div class="member">
+                    <img class="avatar" src="https://media.warera.io/avatars/6813b759efecdf9bab1951e6-1788429161834-f8moml0g.png" alt="Leogann">
+                    <div class="member-info">
+                        <div class="member-name">Leogann</div>
+                        <div class="member-level">Level 33</div>
+                    </div>
+                </div>
+            </td>
+            <td class="value-col">8,475.57</td>
+            <td class="rank-evolution-col">#11126 → #11008 (↑118)</td>
+            <td class="diff-col" style="color:#4ade80">+617.78</td>
+            <td><span class="tier" style="background:#c57a44;">🥉 Bronze</span></td>
+        </tr>
+        </tbody>
+        </table>
+    </div>
+    
+            </div>
+
+            <!-- Roster Changes -->
+            
+    <div class="section-label">Roster Changes</div>
+    <div class="rankings-two-col">
+        
+        <div class="ranking-card">
+            <div class="ranking-title">🟢 New Recruits <span class="roster-count">(1)</span></div>
+            <div class="roster-list">
+        <div class="roster-row">
+            <img class="avatar" src="https://media.warera.io/avatars/6818979a0aebee2e83d96f14-1789219761504-whty12b4.jpg" alt="Leyomis">
+            <div class="member-info">
+                <div class="member-name">Leyomis</div>
+                <div class="member-level">Level 31</div>
+            </div>
+            <span class="roster-badge" style="background:#166534;">Joined</span>
+        </div>
+        </div>
+        </div>
+        
+        
+        <div class="ranking-card">
+            <div class="ranking-title">🔴 Departed Members <span class="roster-count">(2)</span></div>
+            <div class="roster-list">
+        <div class="roster-row">
+            <img class="avatar" src="https://media.warera.io/avatars/6941081ccb2715e852c98d71-1788766199520-3nd2up4h.webp" alt="Csvop-de-FunesBigard">
+            <div class="member-info">
+                <div class="member-name">Csvop-de-FunesBigard</div>
+                <div class="member-level">Level 46</div>
+            </div>
+            <span class="roster-badge" style="background:#7f1d1d;">Left</span>
+        </div>
+        
+        <div class="roster-row">
+            <img class="avatar" src="https://media.warera.io/avatars/6998737ff2bf978ef0d68e01-1791138107933-qt89dx0z-static.gif" alt="Julio">
+            <div class="member-info">
+                <div class="member-name">Julio</div>
+                <div class="member-level">Level 47</div>
+            </div>
+            <span class="roster-badge" style="background:#7f1d1d;">Left</span>
+        </div>
+        </div>
+        </div>
+        
+    </div>
+    
+
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <a href="https://koifeurops.github.io/Warera-Mu-Weekly-Stat-France/Week-41-mu-SPECTRE.html" class="nav-btn nav-btn-prev">Semaine dernière</a>
+                <a href="https://koifeurops.github.io/Warera-Mu-Weekly-Stat-France/index.html" class="nav-btn">Overview</a>
+                <a href="https://koifeurops.github.io/Warera-Mu-Weekly-Stat-France/Week-43-mu-SPECTRE.html" class="nav-btn nav-btn-next">Semaine prochaine</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    
